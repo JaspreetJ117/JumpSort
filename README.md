@@ -27,7 +27,7 @@ This results in a sorted list with **preserved duplicates**, **no comparisons**,
 
 Because values don’t crawl or swap into place — they **jump** straight to where they belong, like they're magnetically pulled into order.
 
-Also, it keeps the **JS initials** for ✨personal branding✨ (*Jaspreet Singh*), which may or may not increase your GitHub aura.
+Also, it keeps the **JS initials** for ✨personal branding✨ (*Jaspreet Singh*), which may or may not increase my GitHub aura.
 
 ---
 
