@@ -80,9 +80,7 @@ See the full license in [`LICENSE`](LICENSE).
 
 ## 🖼 Visualization
 
-![Jump Sort Visualization](src/image.PNG)
-
-*(Coming soon: real-time animations of values jumping into place)*
+![Jump Sort Visualization](image.PNG)
 
 ---
 
