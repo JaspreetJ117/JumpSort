@@ -1,7 +1,7 @@
 # Jump Sort Algorithm
 
 ## 🧠 Overview
-**Jump Sort (JS)** is a custom-built, bucket-based sorting algorithm developed to handle both **negative** and **non-negative** integers efficiently. Designed with simplicity and speed in mind, JS avoids comparisons entirely and places values directly into their appropriate positions — making it ideal for educational use and mid-semester sorting epiphanies.
+**Jump Sort is a custom-built, bucket-based sorting algorithm developed to handle both **negative** and **non-negative** integers efficiently. Designed with simplicity and speed in mind, JS avoids comparisons entirely and places values directly into their appropriate positions — making it ideal for educational use and mid-semester sorting epiphanies.
 
 Unlike its predecessor, Juggle Sort, this version is actually **efficient** — proof that sometimes even winter-semester chaos can produce a useful outcome.
 
