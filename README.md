@@ -97,6 +97,6 @@ Feel free to reach out if you:
 
 Here's a successful test of Jump Sort logic adapted into a LeetCode-style submission environment.
 
-![LeetCode Submission Screenshot](jumpsort.png)
+![LeetCode Submission Screenshot](jump_sort.png)
 
 ---
