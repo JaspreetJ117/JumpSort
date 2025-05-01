@@ -93,3 +93,10 @@ Feel free to reach out if you:
 
 ---
 
+## ✅ LeetCode Submission
+
+Here's a successful test of Jump Sort logic adapted into a LeetCode-style submission environment.
+
+![LeetCode Submission Screenshot](jumpsort.png)
+
+---
