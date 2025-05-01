@@ -31,15 +31,15 @@ unsorted = [random.randint(-250, 250) for _ in range(500)]
 
 
 # Separate into negatives and non-negatives
-negatives = [x for x in unsorted if x < 0]
-non_negatives = [x for x in unsorted if x >= 0]
+unsorted_negatives = [x for x in unsorted if x < 0]
+unsorted = [x for x in unsorted if x >= 0]
 
 # Handle negatives 
-if negatives:
-    max_neg = abs(min(negatives))
+if unsorted_negatives:
+    max_neg = abs(min(unsorted_negatives))
     neg_list = [[] for _ in range(max_neg)]  # Use buckets
 
-    for num in negatives:
+    for num in unsorted_negatives:
         index = abs(num) - 1
         neg_list[index].append(num)
 
@@ -49,11 +49,11 @@ else:
     neg_list = []
 
 # Handle non-negatives 
-if non_negatives:
-    max_nonneg = max(non_negatives)
+if unsorted:
+    max_nonneg = max(unsorted)
     pos_list = [[] for _ in range(max_nonneg + 1)]  # Include index for zero
 
-    for num in non_negatives:
+    for num in unsorted:
         index = num
         pos_list[index].append(num)
 
@@ -63,4 +63,5 @@ else:
     pos_list = []
 
 # Combine
+unsorted = neg_list + pos_list
 print(neg_list + pos_list)
