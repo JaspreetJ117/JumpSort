@@ -1,5 +1,11 @@
 # Jump Sort Algorithm
 
+--
+![Runtime Efficiency](https://img.shields.io/badge/LeetCode%20Runtime-Top%202.43%25-brightgreen?style=for-the-badge&logo=leetcode)
+![Memory Usage](https://img.shields.io/badge/Memory%20Usage-56MB-blue?style=for-the-badge&logo=leetcode)
+
+--
+
 ## 🧠 Overview
 **Jump Sort** is a custom-built, bucket-based sorting algorithm developed to handle both **negative** and **non-negative** integers efficiently. Designed with simplicity and speed in mind, JS avoids comparisons entirely and places values directly into their appropriate positions — making it ideal for educational use and mid-semester sorting epiphanies.
 
