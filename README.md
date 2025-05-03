@@ -2,9 +2,13 @@
 
 ---
 <center>
-![Runtime Efficiency](https://img.shields.io/badge/LeetCode%20Runtime-Top%202.43%25-brightgreen?style=for-the-badge&logo=leetcode)
-![Memory Usage](https://img.shields.io/badge/Memory%20Usage-56MB-blue?style=for-the-badge&logo=leetcode)
+
+   ![Runtime Efficiency](https://img.shields.io/badge/LeetCode%20Runtime-Top%202.43%25-brightgreen?style=for-the-badge&logo=leetcode)
+   
+   ![Memory Usage](https://img.shields.io/badge/Memory%20Usage-56MB-blue?style=for-the-badge&logo=leetcode)
+
 </center>
+
 ---
 
 ## 🧠 Overview
