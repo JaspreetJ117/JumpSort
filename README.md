@@ -82,8 +82,8 @@ See the full license in [`LICENSE`](LICENSE).
 ## 👤 Author
 
 **Jaspreet Jawanda**  
-- 📧 [jawa3252@mylaurier.ca](mailto:jawa3252@mylaurier.ca), [Jaspreet4444@outlook.com](mailto:Jaspreet4444@outlook.com)  
-- 💻 GitHub: [@sayanwala4](https://github.com/sayanwala4)  
+- 📧 [jaspreetjawanda@proton.me](mailto:jaspreetjawanda@proton.me)
+- 💻 GitHub: [@sayanwala4](https://github.com/JaspreetJ117)  
 - 💼 LinkedIn: [jaspreet singh jawanda](https://www.linkedin.com/in/jaspreet-jawanda/)  
 - 🌐 Website: [JJawanda.me](https://www.jjawanda.me/)
 
