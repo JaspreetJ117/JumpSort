@@ -83,7 +83,7 @@ See the full license in [`LICENSE`](LICENSE).
 
 **Jaspreet Jawanda**  
 - 📧 [jaspreetjawanda@proton.me](mailto:jaspreetjawanda@proton.me)
-- 💻 GitHub: [@sayanwala4](https://github.com/JaspreetJ117)  
+- 💻 GitHub: [@JaspreetJ117](https://github.com/JaspreetJ117)  
 - 💼 LinkedIn: [jaspreet singh jawanda](https://www.linkedin.com/in/jaspreet-jawanda/)  
 - 🌐 Website: [JJawanda.me](https://www.jjawanda.me/)
 
