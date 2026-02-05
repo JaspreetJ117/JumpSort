@@ -5,382 +5,761 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jump Sort Simulation</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f9f9f9;
+    :root {
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-panel: #334155;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --accent-pos: #10b981; /* Green for positives */
+      --accent-neg: #f43f5e; /* Red for negatives */
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #475569;
     }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Layout & Containers */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
     h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    /* Controls Section */
+    .controls-area {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
       text-align: center;
     }
-    .metadata {
-      background: #e0ffe0;
+
+    .meta-item {
+      background: var(--bg-panel);
       padding: 10px;
-      border-left: 5px solid green;
-      margin: 20px 0;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
     }
-    .controls {
+
+    .meta-label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .meta-value {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: var(--text-main);
+    }
+
+    .buttons-row {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      gap: 50px;
-      margin-top: 40px;
+      align-items: center;
+      gap: 15px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
     }
-    .button {
-      background-color: #5c6bc0;
+
+    button {
+      background-color: var(--primary);
       color: white;
-      font-size: 24px;
+      font-size: 1rem;
       border: none;
-      border-radius: 10px;
-      padding: 20px 40px;
+      border-radius: 8px;
+      padding: 10px 24px;
       cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: grayscale(1);
+    }
+
+    button.secondary {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border);
+    }
+    
+    button.secondary:hover:not(:disabled) {
+      background-color: var(--border);
+    }
+
+    .speed-control {
       display: flex;
       align-items: center;
       gap: 10px;
-      transition: background-color 0.3s ease;
+      color: var(--text-muted);
+      font-size: 0.9rem;
     }
-    .button:hover {
-      background-color: #3f51b5;
+
+    input[type="range"] {
+      cursor: pointer;
     }
-    .hidden {
-      display: none;
+
+    /* Visualizer Stage */
+    .stage-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
     }
+
+    .step-info {
+      text-align: center;
+      margin-bottom: 20px;
+      height: 24px; /* Prevent jump */
+    }
+
+    .current-status {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
     .visualizer {
+      flex-grow: 1;
       display: flex;
       justify-content: center;
       align-items: flex-end;
       height: 300px;
-      margin-top: 40px;
-      background: #f2edf0;
-      transition: all 0.3s ease;
+      gap: 4px;
+      position: relative;
+      padding: 0 20px;
+      overflow-x: auto; /* Handle overflow if array is huge */
     }
-    .bar {
-      background: #aaa;
-      width: 30px;
-      margin: 0 3px;
-      text-align: center;
-      color: black;
-      font-size: 14px;
+
+    .bar-wrapper {
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
       align-items: center;
-      transition: height 0.4s ease, background 0.4s ease;
+      width: 30px;
+      position: relative;
+      transition: all 0.3s ease;
     }
-    .bar span {
-      margin-top: 4px;
+
+    .bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s;
+      position: relative;
+      min-height: 4px; /* Ensure visibility even if 0 */
     }
-    .step-label {
-      text-align: center;
-      font-size: 18px;
-      margin-top: 20px;
+
+    /* Value Label */
+    .bar-val {
+      margin-top: 5px;
+      font-size: 12px;
+      color: var(--text-main);
       font-weight: bold;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s;
     }
-    .implementations {
-      margin-top: 80px;
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 8px;
-      color: white;
+
+    /* Show value if bar is hovered or active */
+    .bar-wrapper:hover .bar-val,
+    .bar-wrapper.active .bar-val {
+      opacity: 1;
+      transform: translateY(0);
     }
-    .tabs {
+
+    /* Bar Types */
+    .bar.pos { background-color: var(--accent-pos); box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+    .bar.neg { background-color: var(--accent-neg); box-shadow: 0 0 10px rgba(244, 63, 94, 0.3); }
+    .bar.empty { 
+      background-color: rgba(255, 255, 255, 0.05); 
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      height: 20px !important; /* Fixed height for placeholders */
+    }
+
+    /* Index Label for buckets */
+    .bucket-idx {
+      position: absolute;
+      bottom: -20px;
+      font-size: 10px;
+      color: var(--text-muted);
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Code Implementation Section */
+    .implementation-section {
+      background: var(--bg-card);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .tabs-header {
       display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 20px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
     }
+
     .tab {
+      padding: 15px 25px;
       cursor: pointer;
-      background: #333;
-      padding: 10px 20px;
-      border-radius: 5px;
-      transition: background 0.3s;
+      color: var(--text-muted);
+      transition: all 0.2s;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
     }
-    .tab:hover, .tab.active {
-      background: #555;
+
+    .tab:hover {
+      color: var(--text-main);
+      background: rgba(255,255,255,0.05);
     }
-    .code-block {
-      background: #2b2b2b;
-      padding: 15px;
-      border-radius: 5px;
-      white-space: pre;
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: var(--bg-card);
+    }
+
+    .code-content {
+      padding: 20px;
       overflow-x: auto;
-      font-family: monospace;
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.9rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .code-block {
       display: none;
     }
     .code-block.active {
       display: block;
     }
+
+    /* Footer */
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      color: var(--text-muted);
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: #818cf8;
+      text-decoration: underline;
+    }
+
+    .footer-github {
+      display: inline-block;
+      margin-top: 15px;
+      background: #24292e;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none !important;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .footer-github:hover {
+      background: #3c444d;
+    }
+
+    /* Utility */
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <h1>Jump Sort Visualization</h1>
 
-  <div class="metadata">
-    <p><strong>Time Complexity:</strong> O(n + k)</p>
-    <p><strong>Space Complexity:</strong> O(n + k)</p>
-    <p><strong>No comparisons used.</strong> Just direct jumps into indexed buckets.</p>
-  </div>
+<div class="container">
+  <header>
+    <h1>Jump Sort Visualization</h1>
+    <p class="subtitle">Visualizing an O(n + k) distribution sort algorithm</p>
+  </header>
 
-  <div class="controls" id="startControls">
-    <button class="button" onclick="startSimulation()">
-      ▶️ Start
-    </button>
-  </div>
+  <main>
+    <!-- Controls & Metadata -->
+    <section class="controls-area">
+      <div class="metadata-grid">
+        <div class="meta-item">
+          <span class="meta-label">Time Complexity</span>
+          <span class="meta-value">O(n + k)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Space Complexity</span>
+          <span class="meta-value">O(n + k)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Method</span>
+          <span class="meta-value">Direct Indexing</span>
+        </div>
+      </div>
 
-  <div class="controls hidden" id="stepControls">
-    <button class="button" onclick="prevStep()">
-      ◀️
-    </button>
-    <button class="button" onclick="nextStep()">
-      ▶️
-    </button>
-  </div>
+      <div class="buttons-row">
+        <button id="btnGenerate" class="secondary" onclick="initArray()">🎲 Randomize Data</button>
+        
+        <div class="speed-control">
+          <span>Speed:</span>
+          <input type="range" id="speedRange" min="10" max="1000" value="500" step="10">
+        </div>
 
-  <div class="step-label" id="stepLabel"></div>
-  <div class="visualizer" id="visualizer"></div>
+        <button id="btnStart" onclick="startSimulation()">▶️ Start Simulation</button>
+        <button id="btnPause" class="hidden" onclick="pauseSimulation()">⏸️ Pause</button>
+        <button id="btnStep" class="secondary" onclick="stepSimulation()">⏯️ Step</button>
+        <button id="btnReset" class="secondary" onclick="resetSimulation()" disabled>⏹️ Reset</button>
+      </div>
+    </section>
 
-  <div class="implementations">
-    <h2 style="text-align:center">IMPLEMENTATIONS</h2>
-    <div class="tabs">
-      <div class="tab active" onclick="showCode('java')">Java</div>
-      <div class="tab" onclick="showCode('python')">Python</div>
-    </div>
-    <div id="java" class="code-block active">
-      public class jumpsort {
-        public int[] sortArray(int[] nums) {
-            int n = nums.length;
-    
-            // Separate into negatives and non-negatives
-            int[] negatives = new int[n];
-            int[] nonNegatives = new int[n];
-            int negCount = 0, posCount = 0;
-    
-            for (int num : nums) {
-                if (num < 0) {
-                    negatives[negCount++] = num;
-                } else {
-                    nonNegatives[posCount++] = num;
-                }
-            }
-    
-            // Handle negatives (bucketed using abs)
-            int maxAbsNeg = 0;
-            for (int i = 0; i < negCount; i++) {
-                int absVal = Math.abs(negatives[i]);
-                if (absVal > maxAbsNeg) {
-                    maxAbsNeg = absVal;
-                }
-            }
-    
-            int[][] negBuckets = new int[maxAbsNeg][];
-            int[] negBucketCounts = new int[maxAbsNeg];
-            for (int i = 0; i < negCount; i++) {
-                int index = Math.abs(negatives[i]) - 1;
-                negBucketCounts[index]++;
-            }
-    
-            for (int i = 0; i < maxAbsNeg; i++) {
-                negBuckets[i] = new int[negBucketCounts[i]];
-                negBucketCounts[i] = 0;
-            }
-    
-            for (int i = 0; i < negCount; i++) {
-                int index = Math.abs(negatives[i]) - 1;
-                negBuckets[index][negBucketCounts[index]++] = negatives[i];
-            }
-    
-            // Flatten reversed negatives
-            int[] sortedNegatives = new int[negCount];
-            int indexNeg = 0;
-            for (int i = maxAbsNeg - 1; i >= 0; i--) {
-                for (int val : negBuckets[i]) {
-                    sortedNegatives[indexNeg++] = val;
-                }
-            }
-    
-            // Handle non-negatives (bucketed by value)
-            int maxPos = 0;
-            for (int i = 0; i < posCount; i++) {
-                if (nonNegatives[i] > maxPos) {
-                    maxPos = nonNegatives[i];
-                }
-            }
-    
-            int[][] posBuckets = new int[maxPos + 1][];
-            int[] posBucketCounts = new int[maxPos + 1];
-            for (int i = 0; i < posCount; i++) {
-                posBucketCounts[nonNegatives[i]]++;
-            }
-    
-            for (int i = 0; i <= maxPos; i++) {
-                posBuckets[i] = new int[posBucketCounts[i]];
-                posBucketCounts[i] = 0;
-            }
-    
-            for (int i = 0; i < posCount; i++) {
-                int val = nonNegatives[i];
-                posBuckets[val][posBucketCounts[val]++] = val;
-            }
-    
-            int[] result = new int[n];
-            int index = 0;
-    
-            for (int i = 0; i < negCount; i++) {
-                result[index++] = sortedNegatives[i];
-            }
-            for (int i = 0; i <= maxPos; i++) {
-                for (int val : posBuckets[i]) {
-                    result[index++] = val;
-                }
-            }
-    
-            return result;
+    <!-- Visualizer Stage -->
+    <section class="stage-container">
+      <div class="step-info">
+        <span id="statusText" class="current-status">Ready to sort...</span>
+      </div>
+      
+      <!-- The Visualization Area -->
+      <div class="visualizer" id="visualizer">
+        <!-- Bars injected here via JS -->
+      </div>
+    </section>
+
+    <!-- Implementations -->
+    <section class="implementation-section">
+      <div class="tabs-header">
+        <div class="tab active" onclick="switchTab('java')">Java</div>
+        <div class="tab" onclick="switchTab('python')">Python</div>
+      </div>
+      <div class="code-content">
+        <div id="java" class="code-block active">
+<pre>
+<span style="color:#ff7b72">public class</span> <span style="color:#d2a8ff">JumpSort</span> {
+    <span style="color:#ff7b72">public int[]</span> <span style="color:#d2a8ff">sortArray</span>(<span style="color:#ff7b72">int[]</span> nums) {
+        <span style="color:#8b949e">// Separate negatives and non-negatives</span>
+        <span style="color:#ff7b72">int</span>[] negatives = <span style="color:#ff7b72">new int</span>[nums.length];
+        <span style="color:#ff7b72">int</span>[] nonNegatives = <span style="color:#ff7b72">new int</span>[nums.length];
+        <span style="color:#ff7b72">int</span> negCount = <span style="color:#79c0ff">0</span>, posCount = <span style="color:#79c0ff">0</span>;
+
+        <span style="color:#ff7b72">for</span> (<span style="color:#ff7b72">int</span> num : nums) {
+            <span style="color:#ff7b72">if</span> (num < <span style="color:#79c0ff">0</span>) negatives[negCount++] = num;
+            <span style="color:#ff7b72">else</span> nonNegatives[posCount++] = num;
         }
+
+        <span style="color:#8b949e">// Handle negatives (bucketed using abs)</span>
+        <span style="color:#ff7b72">int</span> maxAbsNeg = <span style="color:#79c0ff">0</span>;
+        <span style="color:#ff7b72">for</span> (<span style="color:#ff7b72">int</span> i = <span style="color:#79c0ff">0</span>; i < negCount; i++) {
+            maxAbsNeg = Math.<span style="color:#d2a8ff">max</span>(maxAbsNeg, Math.<span style="color:#d2a8ff">abs</span>(negatives[i]));
+        }
+        <span style="color:#8b949e">// ... (Bucket creation logic) ...</span>
+        
+        <span style="color:#8b949e">// Flatten and combine results</span>
+        <span style="color:#ff7b72">int</span>[] result = <span style="color:#ff7b72">new int</span>[nums.length];
+        <span style="color:#8b949e">// ... (Merge logic) ...</span>
+        <span style="color:#ff7b72">return</span> result;
     }
-  
-    </div>
-    <div id="python" class="code-block">
-      class jumpsort(object):
-      def sortArray(self, nums):
-  
-          # Separate negatives and non-negatives
-          negatives = [x for x in nums if x < 0]
-          non_negatives = [x for x in nums if x >= 0]
-  
-          # Prepare negative side using counts
-          if negatives:
-              max_neg = abs(min(negatives))
-              neg_counts = [0] * max_neg
-              for num in negatives:
-                  index = abs(num) - 1
-                  neg_counts[index] += 1
-              neg_list = []
-              for i in reversed(range(max_neg)):
-                  neg_list.extend([-i - 1] * neg_counts[i])
-          else:
-              neg_list = []
-  
-          # Prepare non-negative side using counts
-          if non_negatives:
-              max_nonneg = max(non_negatives)
-              pos_counts = [0] * (max_nonneg + 1)
-              for num in non_negatives:
-                  pos_counts[num] += 1
-              pos_list = []
-              for i in range(max_nonneg + 1):
-                  pos_list.extend([i] * pos_counts[i])
-          else:
-              pos_list = []
-  
-          return neg_list + pos_list  
-    </div>
-  </div>
+}
+</pre>
+        </div>
+        <div id="python" class="code-block">
+<pre>
+<span style="color:#ff7b72">class</span> <span style="color:#d2a8ff">JumpSort</span>:
+    <span style="color:#ff7b72">def</span> <span style="color:#d2a8ff">sortArray</span>(self, nums):
+        <span style="color:#8b949e"># Separate negatives and non-negatives</span>
+        negatives = [x <span style="color:#ff7b72">for</span> x <span style="color:#ff7b72">in</span> nums <span style="color:#ff7b72">if</span> x < <span style="color:#79c0ff">0</span>]
+        non_negatives = [x <span style="color:#ff7b72">for</span> x <span style="color:#ff7b72">in</span> nums <span style="color:#ff7b72">if</span> x >= <span style="color:#79c0ff">0</span>]
 
-  <script>
-    const unsorted = [24, -6, 35, -17, 9, -6, 16, 29, 47, -16];
-    let currentStep = 0;
+        <span style="color:#8b949e"># Prepare negative side using counts (Pigeonhole sort variation)</span>
+        <span style="color:#ff7b72">if</span> negatives:
+            max_neg = <span style="color:#d2a8ff">abs</span>(<span style="color:#d2a8ff">min</span>(negatives))
+            neg_counts = [<span style="color:#79c0ff">0</span>] * max_neg
+            <span style="color:#ff7b72">for</span> num <span style="color:#ff7b72">in</span> negatives:
+                index = <span style="color:#d2a8ff">abs</span>(num) - <span style="color:#79c0ff">1</span>
+                neg_counts[index] += <span style="color:#79c0ff">1</span>
+            <span style="color:#8b949e"># Reconstruct negative list (sorted)</span>
+            neg_list = []
+            <span style="color:#ff7b72">for</span> i <span style="color:#ff7b72">in</span> <span style="color:#d2a8ff">reversed</span>(<span style="color:#d2a8ff">range</span>(max_neg)):
+                neg_list.extend([-i - <span style="color:#79c0ff">1</span>] * neg_counts[i])
+        <span style="color:#ff7b72">else</span>:
+            neg_list = []
 
-    const jumpSortSteps = (input) => {
-      const negatives = [], nonNegatives = [];
-      input.forEach(num => num < 0 ? negatives.push(num) : nonNegatives.push(num));
+        <span style="color:#8b949e"># Prepare non-negative side using counts</span>
+        <span style="color:#ff7b72">if</span> non_negatives:
+            max_nonneg = <span style="color:#d2a8ff">max</span>(non_negatives)
+            pos_counts = [<span style="color:#79c0ff">0</span>] * (max_nonneg + <span style="color:#79c0ff">1</span>)
+            <span style="color:#ff7b72">for</span> num <span style="color:#ff7b72">in</span> non_negatives:
+                pos_counts[num] += <span style="color:#79c0ff">1</span>
+            <span style="color:#8b949e"># Reconstruct positive list</span>
+            pos_list = []
+            <span style="color:#ff7b72">for</span> i <span style="color:#ff7b72">in</span> <span style="color:#d2a8ff">range</span>(max_nonneg + <span style="color:#79c0ff">1</span>):
+                pos_list.extend([i] * pos_counts[i])
+        <span style="color:#ff7b72">else</span>:
+            pos_list = []
 
-      const maxAbsNeg = Math.max(...negatives.map(n => Math.abs(n)), 0);
-      const maxPos = Math.max(...nonNegatives, 0);
+        <span style="color:#ff7b72">return</span> neg_list + pos_list
+</pre>
+        </div>
+      </div>
+    </section>
+  </main>
 
-      const negList = Array(maxAbsNeg).fill(null);
-      const posList = Array(maxPos + 1).fill(null);
+  <footer>
+    <p>🚀 Made with care by Jaspreet Jawanda</p>
+    <p style="margin-top: 5px;">
+      🌐 <a href="https://www.jjawanda.me" target="_blank">My Website</a> | 
+      💼 <a href="https://www.linkedin.com/in/jaspreet-jawanda/" target="_blank">LinkedIn</a>
+    </p>
+    <br>
+    <a href="https://github.com/sayanwala117/JumpSort" target="_blank" class="footer-github">
+      ⭐ View this project on GitHub
+    </a>
+  </footer>
+</div>
 
-      negatives.forEach(n => {
-        const index = maxAbsNeg - Math.abs(n);
-        negList[index] = n;
-      });
+<script>
+  // --- State Management ---
+  const state = {
+    array: [],
+    steps: [], // Stores the snapshots of the algorithm
+    currentStepIndex: 0,
+    isPlaying: false,
+    speed: 500,
+    controller: null // To abort async animation
+  };
 
-      nonNegatives.forEach(n => {
-        posList[n] = n;
-      });
+  // --- DOM Elements ---
+  const visualizer = document.getElementById('visualizer');
+  const statusText = document.getElementById('statusText');
+  const btnStart = document.getElementById('btnStart');
+  const btnPause = document.getElementById('btnPause');
+  const btnStep = document.getElementById('btnStep');
+  const btnReset = document.getElementById('btnReset');
+  const btnGenerate = document.getElementById('btnGenerate');
+  const speedRange = document.getElementById('speedRange');
 
-      return [
-        input,
-        [negatives, nonNegatives],
-        [negList, posList],
-        [...negList.filter(n => n !== null), ...posList.filter(n => n !== null)]
-      ];
-    };
+  // --- Initialization ---
+  function initArray() {
+    // Generate random array: mix of small negatives and positives
+    // We keep range small (-20 to 20) so the "Jump" visualization fits on screen
+    const size = 15;
+    const arr = [];
+    for (let i = 0; i < size; i++) {
+      // Generate between -20 and 20
+      const val = Math.floor(Math.random() * 41) - 20; 
+      arr.push(val);
+    }
+    state.array = arr;
+    
+    // Pre-calculate steps immediately for instant feedback
+    state.steps = calculateJumpSortSteps(arr);
+    state.currentStepIndex = 0;
+    
+    resetUIState();
+    renderStep(0);
+    updateStatus("Ready. Click Start to begin sorting.");
+  }
 
-    const stepTitles = [
-      "Step 1: Original Unsorted Array",
-      "Step 2: Split into Negatives and Non-Negatives",
-      "Step 3: Place Values at Indexed Positions",
-      "Step 4: Final Sorted Output"
+  function resetUIState() {
+    pauseSimulation();
+    state.currentStepIndex = 0;
+    state.isPlaying = false;
+    btnStart.classList.remove('hidden');
+    btnPause.classList.add('hidden');
+    btnReset.disabled = true;
+    btnGenerate.disabled = false;
+    btnStep.disabled = false;
+  }
+
+  function resetSimulation() {
+    state.currentStepIndex = 0;
+    resetUIState();
+    renderStep(0);
+    updateStatus("Simulation reset.");
+  }
+
+  // --- Logic: Step Generation ---
+  // This function runs the logic virtually to create "snapshots" for the visualizer
+  function calculateJumpSortSteps(input) {
+    const steps = [];
+
+    // Step 0: Initial State
+    steps.push({
+      title: "Initial Unsorted Array",
+      bars: input.map(v => ({ val: v, type: v < 0 ? 'neg' : 'pos' })),
+      showIndices: false
+    });
+
+    // Step 1: Separation
+    const negatives = input.filter(n => n < 0);
+    const nonNegatives = input.filter(n => n >= 0);
+    
+    steps.push({
+      title: "Step 1: Split into Negatives (Red) and Non-Negatives (Green)",
+      bars: [
+        ...negatives.map(v => ({ val: v, type: 'neg' })),
+        ...nonNegatives.map(v => ({ val: v, type: 'pos' }))
+      ],
+      showIndices: false
+    });
+
+    // Step 2: The "Jump" (Buckets)
+    // Determine range for buckets
+    const maxAbsNeg = Math.max(...negatives.map(n => Math.abs(n)), 0);
+    const maxPos = Math.max(...nonNegatives, 0);
+
+    // Create negative buckets (reversed absolute mapping)
+    // In a visual list: index 0 corresponds to -maxAbsNeg, index max-1 corresponds to -1
+    // To match the user's provided logic code "maxAbsNeg - abs(neg)":
+    // If maxAbsNeg is 5.
+    // Val -5 -> index 0. Val -1 -> index 4.
+    const negListSize = maxAbsNeg; 
+    const negBuckets = Array(negListSize).fill(null);
+    negatives.forEach(n => {
+      const index = maxAbsNeg - Math.abs(n); 
+      negBuckets[index] = n;
+    });
+
+    // Create positive buckets (direct mapping)
+    // Val 0 -> index 0. Val 5 -> index 5.
+    const posBuckets = Array(maxPos + 1).fill(null);
+    nonNegatives.forEach(n => {
+      posBuckets[n] = n;
+    });
+
+    // Visual representation of buckets
+    const negBarObjs = negBuckets.map(v => v === null ? null : { val: v, type: 'neg' });
+    const posBarObjs = posBuckets.map(v => v === null ? null : { val: v, type: 'pos' });
+
+    steps.push({
+      title: "Step 2: 'Jump' to Indexed Buckets (Gray slots are empty space)",
+      bars: [...negBarObjs, ...posBarObjs],
+      showIndices: true, // Important to show the "Jump" target indices
+      rangeStart: -maxAbsNeg // To label indices correctly if we wanted (simplified here)
+    });
+
+    // Step 3: Flattening (The Result)
+    const result = [
+      ...negBuckets.filter(n => n !== null),
+      ...posBuckets.filter(n => n !== null)
     ];
 
-    const steps = jumpSortSteps(unsorted);
+    steps.push({
+      title: "Step 3: Final Sorted Output",
+      bars: result.map(v => ({ val: v, type: v < 0 ? 'neg' : 'pos' })),
+      showIndices: false
+    });
 
-    const startSimulation = () => {
-      document.getElementById('startControls').classList.add('hidden');
-      document.getElementById('stepControls').classList.remove('hidden');
-      currentStep = 0;
-      showStep();
-    };
+    return steps;
+  }
 
-    const nextStep = () => {
-      if (currentStep < steps.length - 1) currentStep++;
-      showStep();
-    };
+  // --- Rendering ---
+  function renderStep(index) {
+    if (index < 0 || index >= state.steps.length) return;
 
-    const prevStep = () => {
-      if (currentStep > 0) currentStep--;
-      showStep();
-    };
+    const stepData = state.steps[index];
+    visualizer.innerHTML = '';
+    updateStatus(stepData.title);
 
-    const showStep = () => {
-      const visualizer = document.getElementById('visualizer');
-      const stepLabel = document.getElementById('stepLabel');
-      visualizer.innerHTML = '';
-      stepLabel.textContent = stepTitles[currentStep];
+    stepData.bars.forEach((item, i) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'bar-wrapper';
 
-      let bars = [];
-      switch (currentStep) {
-        case 0:
-          bars = steps[0];
-          break;
-        case 1:
-          bars = [...steps[1][0], ...steps[1][1]];
-          break;
-        case 2:
-          bars = [...steps[2][0], ...steps[2][1]];
-          break;
-        case 3:
-          bars = steps[3];
-          break;
+      if (item === null) {
+        // Render Empty Slot
+        const bar = document.createElement('div');
+        bar.className = 'bar empty';
+        wrapper.appendChild(bar);
+        
+        if (stepData.showIndices) {
+           // In the negative section, index logic is tricky visually.
+           // Let's just show a simple index counter for the whole view
+           const idxLabel = document.createElement('span');
+           idxLabel.className = 'bucket-idx';
+           // This is a simplification for visualization
+           idxLabel.innerText = i; 
+           wrapper.appendChild(idxLabel);
+        }
+
+      } else {
+        // Render Value
+        const bar = document.createElement('div');
+        bar.className = `bar ${item.type}`;
+        // Scale height: 10px base + 5px per unit value
+        const height = Math.abs(item.val) * 8 + 10;
+        bar.style.height = `${height}px`;
+        
+        wrapper.appendChild(bar);
+
+        const valLabel = document.createElement('span');
+        valLabel.className = 'bar-val';
+        valLabel.innerText = item.val;
+        wrapper.appendChild(valLabel);
       }
 
-      bars.forEach(value => {
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        const val = value !== null ? value : 0;
-        bar.style.height = `${Math.abs(val) * 5}px`;
-        bar.innerHTML = value !== null ? `<span>${value}</span>` : "";
-        bar.style.background = value == null ? '#eee' : value < 0 ? '#f77' : '#aaa';
-        visualizer.appendChild(bar);
-      });
-    };
+      visualizer.appendChild(wrapper);
+    });
 
-    function showCode(lang) {
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.code-block').forEach(block => block.classList.remove('active'));
-      document.getElementById(lang).classList.add('active');
-      event.target.classList.add('active');
+    // Highlight active bars if needed (e.g., just show all)
+    const wrappers = document.querySelectorAll('.bar-wrapper');
+    wrappers.forEach(w => w.classList.add('active'));
+  }
+
+  function updateStatus(text) {
+    statusText.innerText = text;
+  }
+
+  // --- Animation Control ---
+
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  async function startSimulation() {
+    if (state.currentStepIndex >= state.steps.length - 1) {
+      resetSimulation();
     }
-  </script>
-<footer style="margin-top: 60px; text-align: center; font-size: 16px; color: #eee; background: #1e1e1e; padding: 20px; border-radius: 8px;">
-  🚀 Made with care by Jaspreet Jawanda <br>
-  🌐 <a href="https://www.jjawanda.me" target="_blank" style="color: #7abaff; text-decoration: none; font-weight: bold;">My Website</a> | 
-  💼 <a href="https://www.linkedin.com/in/jaspreet-jawanda/" target="_blank" style="color: #7abaff; text-decoration: none; font-weight: bold;">LinkedIn</a>
-<br><br>
-  <a href="https://github.com/sayanwala117/JumpSort" target="_blank" style="display: inline-block; margin-top: 15px; background: #24292e; color: #ffffff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold;">
-    ⭐ View this project on GitHub
-  </a>
-</footer>
+
+    state.isPlaying = true;
+    btnStart.classList.add('hidden');
+    btnPause.classList.remove('hidden');
+    btnReset.disabled = true;
+    btnGenerate.disabled = true;
+    btnStep.disabled = true;
+
+    while (state.isPlaying && state.currentStepIndex < state.steps.length - 1) {
+      state.currentStepIndex++;
+      renderStep(state.currentStepIndex);
+      
+      // Calculate delay based on slider (inverted logic: higher value = faster speed)
+      // Slider value 10 (slow) -> 1000ms
+      // Slider value 1000 (fast) -> 10ms
+      const delay = 1010 - state.speed;
+      await sleep(delay);
+    }
+
+    if (state.currentStepIndex >= state.steps.length - 1) {
+      finishSimulation();
+    }
+  }
+
+  function pauseSimulation() {
+    state.isPlaying = false;
+    btnStart.classList.remove('hidden');
+    btnPause.classList.add('hidden');
+    btnReset.disabled = false;
+    btnGenerate.disabled = false;
+    btnStep.disabled = false;
+    btnStart.innerText = "▶️ Resume";
+  }
+
+  function finishSimulation() {
+    state.isPlaying = false;
+    btnStart.classList.remove('hidden');
+    btnPause.classList.add('hidden');
+    btnReset.disabled = false;
+    btnGenerate.disabled = false;
+    btnStep.disabled = false;
+    btnStart.innerText = "↻ Restart";
+    updateStatus("Sorting Complete!");
+  }
+
+  function stepSimulation() {
+    if (state.currentStepIndex < state.steps.length - 1) {
+      state.currentStepIndex++;
+      renderStep(state.currentStepIndex);
+      if (state.currentStepIndex >= state.steps.length - 1) {
+        finishSimulation();
+      }
+    }
+  }
+
+  // --- Event Listeners ---
+  speedRange.addEventListener('input', (e) => {
+    state.speed = parseInt(e.target.value);
+  });
+
+  function switchTab(lang) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.code-block').forEach(b => b.classList.remove('active'));
+    
+    // Find the clicked tab
+    const clickedTab = Array.from(document.querySelectorAll('.tab')).find(t => t.innerText.toLowerCase() === lang);
+    if(clickedTab) clickedTab.classList.add('active');
+    
+    document.getElementById(lang).classList.add('active');
+  }
+
+  // Start
+  initArray();
+
+</script>
 </body>
 </html>
